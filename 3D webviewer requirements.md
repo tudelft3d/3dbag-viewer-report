@@ -1,17 +1,20 @@
 # Requirements for nation-wide 3D citymodel webviewer
+> Written by Ravi Peters & Stelios Vitalis ([3D geoinformation group](https://3d.bk.tudelft.nl), TU Delft)
+
 This documents describes the requirements for a 3D webviewer for sharing a nation-wide 3D citymodel with the general public. 
 
 A 3D citymodel is a dataset that contains objects that are commonly found in cities such as buildings, roads, vegetation, terrain etc. Building objects are generally seen as the most prominent feature type of a 3D city model. Contrary to its name a city model doesn't always refer to the extent of a city and can also contain parts that are not strictly part of a city. In fact, this document focuses on nation-wide 3D city models. Such a dataset contains objects for the whole country. The next iteration of the 3DBAG dataset and the new 3D Basisvoorziening by Kadaster can be considered such nation-wide 3D city models.
 
 *Why make an online 3D viewer for a nation-wide city model?*
+
 The 3D Basisvoorziening is an open dataset that is generated and maintained for the public good from public money. Therefore it should also be publicly accessible. First, this means that the data needs to be disseminated in a usable data format so that everyone can easily download and use the data. Furthermore, considering the novel 3D aspect of a 3D city model (compared to other public datasets), it is also important to lower the barrier of discovering and exploring the data as much as possible. A user should be able to quickly see what such a dataset contains and what new possibilities it offers, without needing special technical skills or know-how.
 
 A 3D webviewer, when implemented well, is a very effective tool to encourage such exploration and discovery of the nation-wide 3D city model. One only needs to click on a link to open and interactively explore the dataset directly on their device. The main benefits of having a 3D webviewer are:
 
 * A 3D citymodel is best understood in a 3D environment.
-* Low barrier to access and see the nation-wide 3D city model. Just open the website and you can see everything, no other tools/steps required. No specific technical knowledge or skills required.
-* It is hip and good for publicity if done well.
-* It can serve as a platform to demonstrate what is possible with 3D (use in decision making/planning, show case results of environmental simlations like flooding, noise, etc)
+* Lowest possible barrier to access and see the nation-wide 3D city model. No specific technical knowledge or skills required.
+* It is good for publicity if done well.
+* It can serve as a platform to demonstrate what is possible with 3D (use in decision making/planning, show case results of environmental simlations like flooding, noise, etc) and to support development of further 3D tools.
 
 In the remainder of this text we will look at what is needed to make such a viewer succesful and discuss the relation of the  viewer to other parts of the dissemination infrastructure, and discuss the available technical components that are presently available and used. A summary with the main conclusions and recomendations is given at the end.
 
@@ -259,9 +262,7 @@ Three.js is by far the most low-level framework of all. A custom-made solution u
 - Performance could be abysmal, if things are not implemented right.
 - Higher maintenance cost. Bugs will appear in functionality that otherwise comes out-of-the-box with CesiumJS or MapBox GL.
 
-## 5 Conclusions and recommendations
-
-### Evaluation of the scenarios
+### Comparison of the scenarios
 
 |                           | Scenario 1 (Cesium)                             | Scenario 2 (Mapbox)                                                  | Scenario 3 (three.js)                                                |
 | ------------------------- | ----------------------------------------------- |:-------------------------------------------------------------------- |:-------------------------------------------------------------------- |
@@ -277,17 +278,23 @@ Three.js is by far the most low-level framework of all. A custom-made solution u
 | Vendor lock-in            | Low                                             | Medium                                                               | None                                                                 |
 | Customisability           | Big codebase, complex API, decent documentation | Simpler API, minimal dev documentation, three.js code can be invoked | Multiple examples, big community, decent documentation               |
 
-### Recommendations
+## 5 Recommendations
 
-Succesfully implementing a web viewer for a nation-wide 3D citymodel will has its challenges. We believe the main focus should be given in providing the most pleasing experience to the user. Features should be implemented only when they don't cause performance to deteriorate or cause too much confusion to the user. This is further underpinned by the novel nature of 3D geoinformation and the lower level of comfort users have using 3D technologies.
+To summarise and conclude we have three recommendations for the realisation of a webviewer for a nation-wide 3D citymodel.
 
-Therefore, while the easiest and more straightforward approach might seem to be an implementation on top of CesiumJS, we would strongly suggest that a more streamlined solution, tailored for the specific use case is developed. This is highly dependent on the amount of time one wants to invest in development and maintenance.
+1. Performance over (too) many features
+  
+    Succesfully implementing a web viewer for a nation-wide 3D citymodel has its challenges. We believe that, above all else, the viewer must have excellent performance and must be easy to use. Features should be implemented only when they don't cause performance to deteriorate or cause too much confusion to the user. This is further underpinned by the novel nature of 3D geoinformation and the lower level of comfort users have using 3D technologies. If the performance and intuitiveness of the viewer are not good, people will quickly discard the viewer.
 
-To us, building a platform with multiple data sources, efficient viewing and displaying the right amount information to the information is always a process that requires heavy development and a lot of experimentation on the UI perspective. Therefore, developing a custom made solution using three.js would, eventually, not have as much as difference in time spent than one building on top of CesiumJS. In fact, maintaining a clean and hand-tailored codebase could be an advantage of a from-scratch solution, than building and relying on external libraries and services.
 
-Another point that needs to be carefully thought is the delivery of data. We think that a solution would only ensure performance when dynamic content extraction is minimised. This means that data have to be statically created so that they are available to the user (and the viewer) without any overhead. Therefore, a combination of 3D Tiles and CityJSON should be the best combination for such a platform: 3D Tiles can act as the "cached" content that the viewer consumes to ensure performance; and CityJSON can be the format which users can use to download data with. Both, would require minimal workload on the server side and low requirements for processing on the infrastructure.
+1. Hand-tailored solution over compromising with an existing viewer platform
 
-Finally, an OGC API Features service would be beneficial for users with more specific needs or for other platforms/services to be built with the available data. In this case, though, a careful requirements analysis needs to be conducted to ensure that a strong enough infastructure can support the workload of executing dynamic queries.
-<!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE3NzA0Mjg4NTFdfQ==
--->
+    To us, building a platform with multiple data sources, efficient viewing and displaying the right amount information to the information is always a process that requires heavy development and a lot of experimentation on the UI perspective. Therefore, developing a custom made solution using three.js and something like 3D Tiles (scenario 3) would, eventually, not have as much as difference in time spent than one building on top of CesiumJS. In fact, maintaining a clean and hand-tailored codebase could be an advantage of a from-scratch solution, than building and relying on external libraries and services.
+    
+    Therefore, while the easiest and more straightforward approach might seem to be an implementation on top of CesiumJS, we would strongly suggest that a more streamlined solution, tailored for the specific use case is developed. We do acknowledge that this also depends on the amount of time one is prepared to invest in development and maintenance.
+
+1. Tight integration between viewer and download service and other related datasets
+
+    While the viewer itself best served by a for visualisation optimised static copy (ie 3D Tiles) of the city model, we also believe that the city objects should be directly retrievable through the viewer in a data format that is good for dissemination. CityJSON is a good choice here, but other formats could also be offered. Ideally the user can directly select, query and download city objects through the viewer. This can be implemented using the OGC API Features service. The viewer (but also other applications) would then be able to directly communicate with this API to query city objects.
+    
+    In addition, the viewer could be linked to other Feature API's that can deliver information from related dataset (The Dis-Geo idea: if an object is represented in multiple datasets that are supplementary to each other, one should be able to easily obtain all the information linked to that object). This would require that such Feature API services exist and that the respective data models are designed such that this linking is indeed easy to do (for instance using a shared identifier). This would be outside of the scope of the viewer development, but the viewer could indeed benefit from such an infrastructure.
