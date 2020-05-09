@@ -19,50 +19,61 @@ In the remainder of this text we will 1) look at what is needed to make such a v
 In order to understand what defines a succesful and good 3D web viewer we need to understand its requirements and how it fits in with the related infrastructure. The requirements are sorted by how important they are.
 <!-- *General requirements on the viewer, desired functionalities, viewer components* -->
 
-#### High priority requirements
+#### High priority requirements [H]
 These requirements need to be met in any case. A viewer that does not implement these requirements in a good manner will not be succesful.
 
 1. *Ability to view the buildings of the complete nation-wide 3D dataset in LoD1.2 or higher in a highly performant manner*
-Minimally with a 2D map as base layer. Must be performant and usable on mobile platforms. Important to minimise required network bandwidth and minimise computational load on the client, so that the user has a fluent experience without unnessecary delays or hiccups.
+
+	Minimally with a 2D map as base layer. Must be performant and usable on mobile platforms. Important to minimise required network bandwidth and minimise computational load on the client, so that the user has a fluent experience without unnessecary delays or hiccups.
 
 2. *Intuitive and easy to use*
-Keep the user interface and controls as simple as possible. People lose interest if things are unnecesarily complicated or unclear. The main audience of the viewer should be a general user and not a domain expert of 3D city models.x
+
+	Keep the user interface and controls as simple as possible. People lose interest if things are unnecesarily complicated or unclear. The main audience of the viewer should be a general user and not a domain expert of 3D city models.x
 
 3. *Open source* 
-Both the used data/exchange formats and the viewer code itself must be open source. This encourages others to use the data and build their own functionalities with the viewer and contribute back their improvements.
 
-#### Medium priority requirements
+	Both the used data/exchange formats and the viewer code itself must be open source. This encourages others to use the data and build their own functionalities with the viewer and contribute back their improvements.
+
+#### Medium priority requirements [M]
 These requirements make the viewer more appealing by introducing more features without increasing the complexity of the 3D scene. Therefore they will have minimal impact on the viewer performance, while stil greatly improving the appeal and usefulness of the viewer.
 
 4. *Ability to easily download data*
-By simply drawing a 2D (x/y axis-aligned) rectangle in the viewer for the area of interest, the user must be able to download the object contained in it. This 2D rectangle can then be used to perform a download query (to a separate download service) to download the underlying 3D citymodel object for the requested area.
+
+	By simply drawing a 2D (x/y axis-aligned) rectangle in the viewer for the area of interest, the user must be able to download the object contained in it. This 2D rectangle can then be used to perform a download query (to a separate download service) to download the underlying 3D citymodel object for the requested area.
 
 5. *Ability to query semantic information for 3D objects by clicking on them*
-The user must be able to retrieve and display attributes (semantics) of specific city objects (e.g. a building's information). It is important that the viewer allows for inspection of all aspects of a city object (3D geometriy and attributes) so that the user knows exactly what the dataset offers.
+	
+	The user must be able to retrieve and display attributes (semantics) of specific city objects (e.g. a building's information). It is important that the viewer allows for inspection of all aspects of a city object (3D geometriy and attributes) so that the user knows exactly what the dataset offers.
 
 6. *Ability to switch between different LoDs for buildings*
-For LoD1.2, 1.3, and higher if available. At any time only one LoD is shown.
+
+	For LoD1.2, 1.3, and higher if available. At any time only one LoD is shown.
 
 7. *Geocoding*
 
-8. Connection with other data sources
+8. *Connection with other data sources*
 
-#### Low priority requirements
+#### Low priority requirements [L]
 These are requirements that are nice to have in the long term. They have the potential to make the viewer significantly more interesting and useful, but when implemented poorly the performance of the viewer may deteriorate. Therefore these requirements should be carefully considered and implemented.
 
 9. *Ability to visualise properties of objects*
-A simple example is to color the buildings according to some attribute/semantics (see for example this [SPOTinfo video](https://www.youtube.com/watch?v=kc65iBk7YBU)). This could be semantic information directly contained in the 3D city model itself, or from a linked dataset (see requirement 8). Preferred are use cases where 3D has real added value like facade level noise simulation results (very difficult to visualise on a 2D map).
+
+	A simple example is to color the buildings according to some attribute/semantics (see for example this [SPOTinfo video](https://www.youtube.com/watch?v=kc65iBk7YBU)). This could be semantic information directly contained in the 3D city model itself, or from a linked dataset (see requirement M58). Preferred are use cases where 3D has real added value like facade level noise simulation results (very difficult to visualise on a 2D map).
 
 10. *Ability to see nation-wide 3D Terrain*
-After 3D buildings are visualised, the visualisation of 3D terrain is the next logical step to be achieved. The simplest and most performant way to achieve this is to take a 3D mesh with a 2D map draped on it as a texture. This will work well with different terrain LoDs. Separate 3D terrain objects are technically also possible but are more complicated to get right with different LoDs and may have a bigger impact on performance.
+	
+	After 3D buildings are visualised, the visualisation of 3D terrain is the next logical step to be achieved. The simplest and most performant way to achieve this is to take a 3D mesh with a 2D map draped on it as a texture. This will work well with different terrain LoDs. Separate 3D terrain objects are technically also possible but are more complicated to get right with different LoDs and may have a bigger impact on performance.
 
 11. *Ability to see other 3D objects than buildings and terrain*
-For example vegetation/trees, roads, transportation network and bridges. Depends on the availability of the data.
 
-### Viewer components
+	For example vegetation/trees, roads, transportation network and bridges. Depends on the availability of the data.
+
+## Viewer in relation to other infrastructure
 *What are the general software components the viewer would consists of? And would it fit in the bigger picture (eg relation to download service, existing postgis database)*
 
 **TODO**: Diagram that shows the viewer in relation to separate download service/Postgis DB
+
+![tk](3dbag-viewer-infrastructure.png)
 
 1. Backend (server) is responsible for:
     - Serve the frontend application to the client
@@ -281,3 +292,6 @@ To us, building a platform with multiple data sources, efficient viewing and dis
 Another point that needs to be carefully thought is the delivery of data. We think that a solution would only ensure performance when dynamic content extraction is minimised. This means that data have to be statically created so that they are available to the user (and the viewer) without any overhead. Therefore, a combination of 3D Tiles and CityJSON should be the best combination for such a platform: 3D Tiles can act as the "cached" content that the viewer consumes to ensure performance; and CityJSON can be the format which users can use to download data with. Both, would require minimal workload on the server side and low requirements for processing on the infrastructure.
 
 Finally, an OGC API Features service would be beneficial for users with more specific needs or for other platforms/services to be built with the available data. In this case, though, a careful requirements analysis needs to be conducted to ensure that a strong enough infastructure can support the workload of executing dynamic queries.
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTE3NzA0Mjg4NTFdfQ==
+-->
