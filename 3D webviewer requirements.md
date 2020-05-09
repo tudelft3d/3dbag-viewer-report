@@ -13,14 +13,14 @@ A 3D webviewer, when implemented well, is a very effective tool to encourage suc
 * It is hip and good for publicity if done well.
 * It can serve as a platform to demonstrate what is possible with 3D (use in decision making/planning, show case results of environmental simlations like flooding, noise, etc)
 
-In the remainder of this text we will 1) look at what is needed to make such a viewer succesful and discuss the relation of the  viewer to other parts of the dissemination infrastructure, 2) discuss the available technical components that are presently available and used. Finally, a summary with the main conclusions and suggestions is given at the end.
+In the remainder of this text we will look at what is needed to make such a viewer succesful and discuss the relation of the  viewer to other parts of the dissemination infrastructure, and discuss the available technical components that are presently available and used. A summary with the main conclusions and recomendations is given at the end.
 
-## General requirements and components of the viewer
-In order to understand what defines a succesful and good 3D web viewer we need to understand its requirements and how it fits in with the related infrastructure. The requirements are sorted by how important they are.
+## 1 Viewer requirements
+In order to understand what defines a succesful and good 3D web viewer we need to understand its requirements and how it fits in with the related infrastructure. The requirements are categorised by how important they are.
 <!-- *General requirements on the viewer, desired functionalities, viewer components* -->
 
 #### High priority requirements [H]
-These requirements need to be met in any case. A viewer that does not implement these requirements in a good manner will not be succesful.
+These mostly non-functional requirements need to be met in any case. A viewer that does not implement these requirements in a good manner will not be succesful.
 
 1. *Ability to view the buildings of the complete nation-wide 3D dataset in LoD1.2 or higher in a highly performant manner*
 
@@ -35,30 +35,34 @@ These requirements need to be met in any case. A viewer that does not implement 
 	Both the used data/exchange formats and the viewer code itself must be open source. This encourages others to use the data and build their own functionalities with the viewer and contribute back their improvements.
 
 #### Medium priority requirements [M]
-These requirements make the viewer more appealing by introducing more features without increasing the complexity of the 3D scene. Therefore they will have minimal impact on the viewer performance, while stil greatly improving the appeal and usefulness of the viewer.
+These functional requirements make the viewer more appealing by introducing more features without increasing the complexity of the 3D scene. Therefore they will have minimal impact on the viewer performance, while stil greatly improving the appeal and usefulness of the viewer.
 
 4. *Ability to easily download data*
 
 	By simply drawing a 2D (x/y axis-aligned) rectangle in the viewer for the area of interest, the user must be able to download the object contained in it. This 2D rectangle can then be used to perform a download query (to a separate download service) to download the underlying 3D citymodel object for the requested area.
 
-5. *Ability to query semantic information for 3D objects by clicking on them*
+5. *Ability to query semantic information for city objects eg. by clicking on them*
 	
-	The user must be able to retrieve and display attributes (semantics) of specific city objects (e.g. a building's information). It is important that the viewer allows for inspection of all aspects of a city object (3D geometriy and attributes) so that the user knows exactly what the dataset offers.
+	The user must be able to request and see all the attributes (semantics) of a city object that are contained in the 3D city model dataset itself. In this way the user can inspect all aspects of a city object (both 3D geometry and attributes) directly from the viewer.
+    
+6. *Ability to query semantic information for city objects from other related datasets*
 
-6. *Ability to switch between different LoDs for buildings*
+    This is a natural extension of the previous requirement. It allows the user to retrieve attributes/information about a city object from other related datasets that contain relevant information. This should ideally happen through a separate API that disseminates the related dataset. Notice that this separate API is not part of the viewer infrastructure itself, but the viewer can connect to it and use it (see Section 2). This is in accordance with the [Dis-Geo](https://www.digitaleoverheid.nl/nieuws/doorontwikkeling-van-basisregistraties-in-samenhang-dis-geo/) idea.
+
+7. *Ability to switch between different LoDs for buildings*
 
 	For LoD1.2, 1.3, and higher if available. At any time only one LoD is shown.
 
-7. *Geocoding*
+8. *Address lookup (geocoding)*
 
-8. *Connection with other data sources*
+    The user types an address and the viewer jumps to the corresponding geographic coordinates.
 
 #### Low priority requirements [L]
-These are requirements that are nice to have in the long term. They have the potential to make the viewer significantly more interesting and useful, but when implemented poorly the performance of the viewer may deteriorate. Therefore these requirements should be carefully considered and implemented.
+These are functional requirements that are nice to have in the long term. They have the potential to make the viewer significantly more interesting and useful, but when implemented poorly the performance of the viewer may deteriorate. Therefore these requirements should be carefully considered and implemented.
 
 9. *Ability to visualise properties of objects*
 
-	A simple example is to color the buildings according to some attribute/semantics (see for example this [SPOTinfo video](https://www.youtube.com/watch?v=kc65iBk7YBU)). This could be semantic information directly contained in the 3D city model itself, or from a linked dataset (see requirement M58). Preferred are use cases where 3D has real added value like facade level noise simulation results (very difficult to visualise on a 2D map).
+	A simple example is to color the buildings according to some attribute/semantics (see for example this [SPOTinfo video](https://www.youtube.com/watch?v=kc65iBk7YBU)). This could be semantic information directly contained in the 3D city model itself, or from a linked dataset (see requirement M8). Preferred are use cases where 3D has real added value like facade level noise simulation results (very difficult to visualise on a 2D map).
 
 10. *Ability to see nation-wide 3D Terrain*
 	
@@ -68,29 +72,21 @@ These are requirements that are nice to have in the long term. They have the pot
 
 	For example vegetation/trees, roads, transportation network and bridges. Depends on the availability of the data.
 
-## Viewer in relation to other infrastructure
-*What are the general software components the viewer would consists of? And would it fit in the bigger picture (eg relation to download service, existing postgis database)*
+## 2 Technical infrastructure
+This section gives a brief overview of the complete infrastructure in terms of databases, API services and webapplications that are needed to realise the 3D webviewer. 
 
-**TODO**: Diagram that shows the viewer in relation to separate download service/Postgis DB
+The image below illustrates the main components and how they are linked to each other.
 
-![tk](3dbag-viewer-infrastructure.png)
+![Infrastructure overview](https://i.imgur.com/muyzHTV.png)
 
-1. Backend (server) is responsible for:
-    - Serve the frontend application to the client
-    - Some kind of mechanism to serve 3D geometry + semantic information
-        - serve both semantics and geometry with same mechanism?
-        - what is the link to how things are stored in PostgreSQL database? Can we serve straight from the DB, or do we need an intermediate format?
-        - what standards are available?
+The viewer infrastructure itself is highlighted in blue and consists of the following parts:
 
-1. Frontend (client) is responsible for:
-    - 3D rendering
-    - 3D interaction (viewport control, picking, selection)
-    - Dynamically retrieving data (geometry+semantics) from the server
-    - User Interface (the conventional buttons, menu's, dialogs etc)
+1. **(PostGIS) Database** that contains the current version of the 3D city model
+2. **Static geometry files that are optimised for consumption by the viewer**. This is essentially a static copy of the geometries in the database in a format that can be quickly transferred and loaded into the viewer. Likely to use some kind of tiling scheme so that the viewer can easily load only the parts of the city model that are in the current view (to maximise performance and minimise how much data needs to be downloaded).
+3. **Feature API for the 3D city model**. This is a dynamic service that can be queried by client applications (our viewer application, but possibly also other applications). Through this service any part of the city model can be requested/downloaded in a format that is good for dissemination. A download feature in the viewer would utilise this API.
+4. **Viewer application**. This is the webapplication that runs in the browser of the user. It is primarily responsible for rendering the 3D city model and the user interface in the browser window. It can also communicates with the aforementioned API and possibly also with external Feature API's that offer additional information about the city objects (see requirement M6), these external APIs are shown in grey in the figure.
 
-
-
-## Current state of the art
+## 3 Current state of the art
 This section gives a non-exhaustive technical overview of the most popular currently available standards and libraries that can be used to realise a 3D web viewer.
 
 ### Data formats/standards
@@ -202,7 +198,7 @@ There is currently no support for terrain, except for TINRelief in CityJSON. It 
 
 The vue components are reusable through [cityjson-vue-components](https://www.npmjs.com/package/cityjson-vue-components), so it should be easy to build a new viewer with some of the parts of ninja for the purposes of BAG 3D. The only limitation is that it requires Vuejs to be used as a front-end.
 
-## Three scenarios for implementing the viewer
+## 4 Three scenarios for implementing the viewer
 
 Based on the available state of the art tools we listed before, we propose three general scenarios to implement a viewer.
 
@@ -263,7 +259,7 @@ Three.js is by far the most low-level framework of all. A custom-made solution u
 - Performance could be abysmal, if things are not implemented right.
 - Higher maintenance cost. Bugs will appear in functionality that otherwise comes out-of-the-box with CesiumJS or MapBox GL.
 
-## Conclusions and recommendations
+## 5 Conclusions and recommendations
 
 ### Evaluation of the scenarios
 
