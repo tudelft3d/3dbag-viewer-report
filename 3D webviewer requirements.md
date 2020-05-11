@@ -19,7 +19,7 @@ A 3D webviewer, when implemented well, is a very effective tool to encourage suc
 In the remainder of this text we will look at what is needed to make such a viewer succesful and discuss the relation of the  viewer to other parts of the dissemination infrastructure, and discuss the available technical components that are presently available and used. A summary with the main conclusions and recomendations is given at the end.
 
 ## 1 Viewer requirements
-In order to understand what defines a succesful and good 3D web viewer we need to understand its requirements and how it fits in with the related infrastructure. The requirements are categorised by how important they are.
+In order to understand what defines a succesful and good 3D web viewer we need to understand its requirements. We categorise requirements according to how important they are.
 <!-- *General requirements on the viewer, desired functionalities, viewer components* -->
 
 #### High priority requirements [H]
@@ -143,9 +143,9 @@ The specification is built to be used mostly for the storage of data per city re
 
 #### OGC API Features ('WFS3')
 
-An OGC standard for an on-demand service that returns data according to the user's request parameters (REST API). It's format agnostic, meaning that data can be returned in any format (CityJSON, CityGML etc.).
+The successor of the well known WFS standard. An OGC standard for an on-demand service that returns data according to the user's request parameters (REST API). It's format agnostic, meaning that data can be returned in any format (CityJSON, CityGML etc.).
 
-Currently, there is experimental work on an implementation for CityJSON. Regarding bandwidth, it potentially be decent enough, but it requires constant calculation from the server in order to compute and produce the result.
+Currently, there is experimental work on an implementation for CityJSON. Regarding bandwidth, it potentially be decent enough, but it requires constant calculation from the server in order to compute and produce the result. Suitable for creating a download service, and likely to be widely supported by many software in the future.
 
 #### 3DcityDB
 
@@ -157,7 +157,7 @@ A database schema to store CityGML information, developed by virtualcitySYSTEMS.
 
 A low-level framework to ease the development of 3D web application. Utilises WebGL. Is the most flexible option, given that manipulation of data is done directly in the lowest level (meshes, textures, materials etc). Has been around for years and is the most popular choice for a web 3D graphics engine.
 
-There is no GIS/tiling functionality. Any data format of the above needs to be implemented for the specific use case. For the moment, there is [ninja](ninja.cityjson.org) that uses it with CityJSON and certain aspects of the code could be reused. No robust and reliable solution exists for 3D tiles or any other tiling mechanism whatsoever. There is a promising open-source project , though, from [NASA AMMOS](https://github.com/NASA-AMMOS/3DTilesRendererJS).
+There is no GIS/tiling functionality built-in. Any data format of the above needs to be implemented for the specific use case. For the moment, there is [ninja](ninja.cityjson.org) that uses it with CityJSON and certain aspects of the code could be reused. No robust and reliable solution exists for 3D tiles or any other tiling mechanism whatsoever. There is a promising open-source project , though, from [NASA AMMOS](https://github.com/NASA-AMMOS/3DTilesRendererJS).
 
 Can be used to produce very pleasing viewers, such as [f4map](https://demo.f4map.com/) (not open source), or [vizicities](https://parallel.co.uk/netherlands/#13.8/52.365/4.9/0/40).
 
@@ -178,13 +178,13 @@ Multiple agencies and organisations use it, mostly because of the out-of-the-box
 
 #### [Mapbox GL](https://docs.mapbox.com/mapbox-gl-js/api/)
 
-A library to build viewers that consume Mapbox data. There is limited 3D viewing functionality out-of-the-box (mostly 2.5 through extrusion), but one can use three.js directly to import/visualise complex 3D models.
+A mapping library to build viewers that primarily consume Mapbox data. Focuses on 2D maps and styling capabilities. There is limited 3D viewing functionality out-of-the-box: polygon extrusion by a height-attribute, which is good for LoD1.3 but not useful for LoD2. One can also create layers using three.js directly to import/visualise complex 3D models, but this requires a lot more tinkering.
 
-Default functionality is very efficient and easy in the eye for regular users. There is [experimental](https://github.com/Geodan/mapbox-3dtiles) support for 3D Tiles (useful for LoD2). 3D terrain currently is not supported, but it seems that Mapbox is looking into it:
+Default functionality is very efficiently implement, also on mobile platforms, and easy in the eye for regular users. There is [experimental](https://github.com/Geodan/mapbox-3dtiles) support for 3D Tiles (useful for LoD2). 3D terrain currently is not supported, but it seems that Mapbox is looking into it:
 - [3D terrain rendering](https://blog.mapbox.com/bringing-3d-terrain-to-the-browser-with-three-js-410068138357)
 - [3D terrain simplification](https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh)
 
-Multiple higher-level frameworks to work directly with data, such as: [deck.gl](https://deck.gl/#/).
+<!-- Multiple higher-level frameworks to work directly with data, such as: [deck.gl](https://deck.gl/#/). -->
 
 Examples:
 https://3d.bk.tudelft.nl/opendata/noise3d/lod13map.html
@@ -223,26 +223,25 @@ Delivering data as 3D Tiles and consuming through CesiumJS seems like the most s
 - Cesium seems to promote their services a lot. Even in their documentation it becomes difficult to designate which parts are the open source/standard technologies and what are their proprietary products (e.g. they push a lot Cesium Ion, their own data delivery service).
 - 3D tiles are open standard and famous, but still the most reliable solution is using Cesium's propriatery software/services.
 - Vendor lock-in is still a minor possibility, based on the previous. While all is open source/standards, the community hasn't gone too far to overcome the software monopoly of Cesium in the ecosystem.
-- Performance can never be great. While web transactions are optimised, CesiumJS is bloated and best case scenario with a local hosted solution is to get good performance. For most computers, using a single CesiumJS viewer might be challenging, so building any sophisticated UI using a JavaScript front-end would definitely make performance worse. That limits the choices of GUI and requires higher amount of time for optimisation to deliver a useful final app.
+- Performance can never be great. While web transactions are optimised, for most computers using a single CesiumJS viewer might be challenging, so building any sophisticated UI using a JavaScript front-end would definitely make performance worse. That limits the choices of GUI and requires higher amount of time for optimisation to deliver a useful final app.
 - Final product looks always the same. You can tell that a tool is based on Cesium from miles and that's not a good thing, because it looks boring and doesn't attract the user (that's, also, due to the performance).
 
 ### Scenario 2: Mapbox GL + 3D Tiles
 
-MapBox is better performing than CesiumJS. Nevertheless, there is no reliable solution for using 3D Tiles with it, except for a [prototype](https://github.com/Geodan/mapbox-3dtiles) developed by Geodan. Further development towards this direction would be needed. Mapbox's power would show when using 2.5D data like LoD 1.x (so, practically when not using any 3D geometries at all). Implementing a full 3D solution is challenging since the viewer is not intended for consumption of truly 3D data. For example, in Geodan's prototype a terrain is visualised, but collides with the existing 2D plane of the viewer.
+MapBox is better performing than CesiumJS. Nevertheless, there is no reliable and complete solution for using 3D (Tiles) with it, except for a [prototype](https://github.com/Geodan/mapbox-3dtiles) developed by Geodan. Further development towards this direction would be needed. Mapbox's power would show when using 2.5D data like LoD 1.x and no 3D terrain (so, practically when not using any 3D geometries at all). Implementing a full 3D solution is challenging since the viewer is not intended for consumption of truly 3D data. For example, in Geodan's prototype a terrain is visualised, but collides with the existing 2D mapping plane of the viewer.
 
 #### Pros
-- Similar feature-set as CesiumJS, but better performance (mostly).
-- Optimised for data viewing in simple use cases, where footprint can height can be used. This can be used to have a robust viewer for certain LoDs (e.g. LoD1.x).
-- 3D features can be added by implementing a three.js layer
-- Easy to use and adapt. Good styling mechanism, more consumer-friendly.
+- Lightweight and high performance, also on mobile (mostly).
+- Optimised for data viewing in simple use cases, where footprint can height can be used. This can be used to have a robust viewer for LoD1.x buildings.
+- Possible to extend with more 3D features by implementing a three.js layer
+- Easy to use and adapt. Good styling mechanism, user friendly.
 
 #### Cons
 - Only supports 2D geometry sources out of the box.
-- Performance and features for complex 3D geometries still lagging (e.g. for LoD2).
-- Limited 3D support. No reliable solution for 3D tiles, so custom implementation/maintenance of a 3D tiles parser will be necessary.
+- Support and features for complex 3D geometries still lagging (e.g. for LoD2). No reliable solution for 3D tiles, so custom implementation/maintenance of a 3D tiles parser will be necessary.
 - Not really possible to elegantly implement 3D terrain since there is always a 2D baselayer.
 - Vendor lock-in is a possibility, maybe slightly more prominent than Cesium. They promote their own proprietary services. Using their own open software/standards (e.g. vector tiles) is very hard without their support.
-- Performance is not guaranteed, since custom code has to be writted for 3D tiles (and complex 3D geometries in general).
+- Performance is not guaranteed if one wants to use it for more than LoD 1.x, since custom code has to be writted for 3D tiles (and complex 3D geometries in general).
 
 ### Scenario 3: three.js + 3D tiles/OGC API
 
@@ -255,7 +254,7 @@ Three.js is by far the most low-level framework of all. A custom-made solution u
 - Can be more dynamic. For instance, 3D tiles and OGC API can be used interchangeably to re-use parts of the delivery service.
 
 #### Cons
-- Most things have to be re-implemented, for example:
+- Most things have to be implemented from scratch, for example:
     - terrain support
     - management and parsing of tiles
     - camera movement
